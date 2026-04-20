@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnxioTest</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- AYUDA MODAL -->
+  <div id="ayuda-overlay" class="overlay oculto" role="dialog" aria-modal="true" aria-labelledby="ayuda-titulo">
+    <div class="modal">
+      <h2 id="ayuda-titulo">Ayuda</h2>
+      <p id="ayuda-texto">Instrucciones de ayuda.</p>
+      <button class="btn-primario" onclick="cerrarAyuda()">Cerrar ayuda</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 1: BIENVENIDA -->
+  <section id="pantalla-bienvenida" class="pantalla activa">
+    <header class="encabezado">
+      <span class="titulo-app">AnxioTest</span>
+      <button class="btn-ayuda" onclick="abrirAyuda('bienvenida')" aria-label="Abrir ayuda">?</button>
+    </header>
+    <main class="contenido">
+      <h1 class="titulo-seccion">Como funciona:</h1>
+      <ol class="lista-pasos">
+        <li>Seleccione el tipo de evaluacion que desea realizar.</li>
+        <li>Responda cada pregunta con honestidad. No hay respuestas correctas o incorrectas.</li>
+        <li>Al finalizar, recibira su resultado con una breve explicacion.</li>
+      </ol>
+      <div class="aviso">
+        <p>Sus respuestas son anonimas y confidenciales.</p>
+      </div>
+      <button class="btn-primario" onclick="irA('pantalla-seleccion')">Comenzar mi evaluacion</button>
+    </main>
+  </section>
+
+  <!-- PANTALLA 2: SELECCION DE TEST -->
+  <section id="pantalla-seleccion" class="pantalla oculto">
+    <header class="encabezado">
+      <button class="btn-retroceso" onclick="irA('pantalla-bienvenida')" aria-label="Regresar">Atras</button>
+      <button class="btn-ayuda" onclick="abrirAyuda('seleccion')" aria-label="Abrir ayuda">?</button>
+    </header>
+    <main class="contenido">
+      <h1 class="titulo-seccion">Seleccione el tipo de evaluacion</h1>
+      <div id="opciones-test" class="lista-opciones">
+        <button class="btn-opcion-test" onclick="seleccionarTest('A')" id="btn-test-a" aria-pressed="false">
+          <span class="nombre-test">Evaluacion A</span>
+          <span class="desc-test">Cuestionario sobre estado de animo (PHQ-9)</span>
+        </button>
+        <button class="btn-opcion-test deshabilitado" disabled aria-disabled="true">
+          <span class="nombre-test">Evaluacion B</span>
+          <span class="desc-test">Proximamente disponible</span>
+        </button>
+      </div>
+      <button class="btn-primario" onclick="iniciarTest()">Continuar</button>
+    </main>
+  </section>
+
+  <!-- PANTALLA 3: PREGUNTAS -->
+  <section id="pantalla-preguntas" class="pantalla oculto">
+    <header class="encabezado">
+      <span id="progreso-texto" class="progreso-texto">Pregunta 1 de 9</span>
+      <button class="btn-ayuda" onclick="abrirAyuda('pregunta')" aria-label="Abrir ayuda">?</button>
+    </header>
+    <div class="barra-progreso-contenedor" role="progressbar" aria-valuemin="0" aria-valuemax="9" id="barra-contenedor">
+      <div class="barra-progreso" id="barra-progreso"></div>
+    </div>
+    <main class="contenido">
+      <p class="instruccion-pregunta">Durante las ultimas dos semanas, con que frecuencia le ha molestado lo siguiente:</p>
+      <div class="tarjeta-pregunta">
+        <p id="texto-pregunta" class="texto-pregunta"></p>
+      </div>
+      <div id="opciones-respuesta" class="opciones-respuesta" role="radiogroup" aria-labelledby="texto-pregunta">
+      </div>
+    </main>
+    <footer class="pie-navegacion">
+      <button class="btn-secundario" id="btn-anterior" onclick="preguntaAnterior()">Anterior</button>
+      <button class="btn-primario" id="btn-siguiente" onclick="preguntaSiguiente()">Siguiente</button>
+    </footer>
+  </section>
+
+  <!-- PANTALLA 4: RESULTADO -->
+  <section id="pantalla-resultado" class="pantalla oculto">
+    <header class="encabezado">
+      <span class="titulo-app">AnxioTest</span>
+      <button class="btn-ayuda" onclick="abrirAyuda('resultado')" aria-label="Abrir ayuda">?</button>
+    </header>
+    <main class="contenido">
+      <h1 class="titulo-seccion">Su resultado</h1>
+      <div class="indicador-nivel">
+        <div id="nivel-puntos" class="puntos-nivel"></div>
+      </div>
+      <div class="tarjeta-resultado">
+        <h2 id="resultado-nivel" class="resultado-nivel"></h2>
+        <p id="resultado-puntuacion" class="resultado-puntuacion"></p>
+        <p id="resultado-descripcion" class="resultado-descripcion"></p>
+      </div>
+      <div class="aviso aviso-resultado">
+        <p>Este resultado es orientativo. Consulte siempre con un profesional de salud para una evaluacion completa.</p>
+      </div>
+      <button class="btn-primario" onclick="reiniciar()">Realizar de nuevo</button>
+    </main>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
