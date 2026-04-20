@@ -50,9 +50,9 @@
           <span class="nombre-test">Evaluacion A</span>
           <span class="desc-test">Cuestionario sobre estado de animo (PHQ-9)</span>
         </button>
-        <button class="btn-opcion-test deshabilitado" disabled aria-disabled="true">
+        <button class="btn-opcion-test" onclick="seleccionarTest('B')" id="btn-test-b" aria-pressed="false">
           <span class="nombre-test">Evaluacion B</span>
-          <span class="desc-test">Proximamente disponible</span>
+          <span class="desc-test">Inventario de Ansiedad de Beck (BAI)</span>
         </button>
       </div>
       <button class="btn-primario" onclick="iniciarTest()">Continuar</button>
@@ -69,7 +69,7 @@
       <div class="barra-progreso" id="barra-progreso"></div>
     </div>
     <main class="contenido">
-      <p class="instruccion-pregunta">Durante las ultimas dos semanas, con que frecuencia le ha molestado lo siguiente:</p>
+      <p id="instruccion-pregunta-texto" class="instruccion-pregunta"></p>
       <div class="tarjeta-pregunta">
         <p id="texto-pregunta" class="texto-pregunta"></p>
       </div>
@@ -90,6 +90,7 @@
     </header>
     <main class="contenido">
       <h1 class="titulo-seccion">Su resultado</h1>
+      <p id="titulo-resultado-test" class="instruccion-pregunta" style="font-weight:600;"></p>
       <div class="indicador-nivel">
         <div id="nivel-puntos" class="puntos-nivel"></div>
       </div>

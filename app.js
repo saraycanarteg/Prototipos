@@ -28,6 +28,50 @@ const PHQ9 = {
   ]
 };
 
+// ---- DATOS DEL TEST BAI ----
+const BAI = {
+  nombre: "Evaluacion B - Inventario de Ansiedad de Beck (BAI)",
+  instruccion: "A continuacion se presenta una lista de sintomas comunes de la ansiedad. Lea cada uno de los items con atencion e indique cuanto le ha afectado en la ultima semana, incluyendo hoy.",
+  preguntas: [
+    "Torpe o entumecido",
+    "Acalorado",
+    "Con temblor en las piernas",
+    "Incapaz de relajarse",
+    "Con temor a que ocurra lo peor",
+    "Mareado, o que se le va la cabeza",
+    "Con latidos del corazon fuertes y acelerados",
+    "Inestable",
+    "Atemorizado o asustado",
+    "Nervioso",
+    "Con sensacion de bloqueo",
+    "Con temblores en las manos",
+    "Inquieto, inseguro",
+    "Con miedo a perder el control",
+    "Con sensacion de ahogo",
+    "Con temor a morir",
+    "Con miedo",
+    "Con problemas digestivos",
+    "Con desvanecimientos",
+    "Con rubor facial",
+    "Con sudores, frios o calientes"
+  ],
+  opciones: [
+    { etiqueta: "No", valor: 0 },
+    { etiqueta: "Leve", valor: 1 },
+    { etiqueta: "Moderado", valor: 2 },
+    { etiqueta: "Bastante", valor: 3 }
+  ],
+  resultados: [
+    { min: 0,  max: 21, nivel: "Ansiedad muy baja",   descripcion: "Sus respuestas indican niveles muy bajos de ansiedad. Esto es positivo. Si en algun momento nota que sus sintomas aumentan, puede repetir esta evaluacion o consultar con un profesional." },
+    { min: 22, max: 35, nivel: "Ansiedad moderada",   descripcion: "Sus respuestas sugieren un nivel moderado de ansiedad. Le recomendamos hablar con un profesional de salud mental que pueda orientarle sobre estrategias para manejar estos sintomas." },
+    { min: 36, max: 63, nivel: "Ansiedad severa",     descripcion: "Sus respuestas indican un nivel severo de ansiedad. Es importante que consulte a un profesional de salud lo antes posible. Existen tratamientos eficaces y no tiene que enfrentar esto solo." }
+  ],
+  etiquetaPuntuacion: "Puntuacion: {puntos} de 63 (BAI)"
+};
+
+// ---- MAPA DE TESTS ----
+const TESTS = { A: PHQ9, B: BAI };
+
 // ---- ESTADO DE LA APLICACION ----
 let testSeleccionado = null;
 let preguntaActual = 0;
@@ -37,7 +81,7 @@ let respuestas = [];
 const textosAyuda = {
   bienvenida: "Esta es la pantalla de bienvenida. Aqui vera como funciona la evaluacion. Cuando este listo, presione el boton 'Comenzar mi evaluacion'.",
   seleccion:  "Seleccione el tipo de evaluacion que desea realizar tocando una de las opciones. Luego presione 'Continuar'.",
-  pregunta:   "Lea la pregunta con calma. Luego elija la opcion que mejor describa como se ha sentido durante las ultimas dos semanas. Puede regresar a la pregunta anterior si desea cambiar su respuesta.",
+  pregunta:   "Lea la pregunta con calma. Luego elija la opcion que mejor describa como se ha sentido durante el periodo indicado. Puede regresar a la pregunta anterior si desea cambiar su respuesta.",
   resultado:  "Esta pantalla muestra el resultado de su evaluacion. Recuerde que este resultado es orientativo y no reemplaza la consulta con un profesional de salud."
 };
 
@@ -72,15 +116,17 @@ function iniciarTest() {
     alert("Por favor, seleccione una evaluacion para continuar.");
     return;
   }
+  const test = TESTS[testSeleccionado];
   preguntaActual = 0;
-  respuestas = new Array(PHQ9.preguntas.length).fill(null);
+  respuestas = new Array(test.preguntas.length).fill(null);
   mostrarPregunta();
   irA("pantalla-preguntas");
 }
 
 // ---- LOGICA DE PREGUNTAS ----
 function mostrarPregunta() {
-  const total = PHQ9.preguntas.length;
+  const test = TESTS[testSeleccionado];
+  const total = test.preguntas.length;
   const indice = preguntaActual;
 
   // Progreso
@@ -90,14 +136,18 @@ function mostrarPregunta() {
   const porcentaje = ((indice) / total) * 100;
   barra.style.width = porcentaje + "%";
   document.getElementById("barra-contenedor").setAttribute("aria-valuenow", indice + 1);
+  document.getElementById("barra-contenedor").setAttribute("aria-valuemax", total);
+
+  // Instruccion especifica del test
+  document.getElementById("instruccion-pregunta-texto").textContent = test.instruccion;
 
   // Pregunta
-  document.getElementById("texto-pregunta").textContent = PHQ9.preguntas[indice];
+  document.getElementById("texto-pregunta").textContent = test.preguntas[indice];
 
   // Opciones de respuesta
   const contenedor = document.getElementById("opciones-respuesta");
   contenedor.innerHTML = "";
-  PHQ9.opciones.forEach((opcion, i) => {
+  test.opciones.forEach((opcion) => {
     const btn = document.createElement("button");
     btn.className = "btn-respuesta" + (respuestas[indice] === opcion.valor ? " seleccionado" : "");
     btn.setAttribute("role", "radio");
@@ -128,7 +178,6 @@ function mostrarPregunta() {
 
 function seleccionarRespuesta(valor) {
   respuestas[preguntaActual] = valor;
-  // Actualizar estilos
   document.querySelectorAll(".btn-respuesta").forEach(btn => {
     const esSeleccionado = parseInt(btn.getAttribute("data-valor")) === valor;
     btn.classList.toggle("seleccionado", esSeleccionado);
@@ -141,7 +190,8 @@ function preguntaSiguiente() {
     alert("Por favor, seleccione una respuesta antes de continuar.");
     return;
   }
-  if (preguntaActual < PHQ9.preguntas.length - 1) {
+  const test = TESTS[testSeleccionado];
+  if (preguntaActual < test.preguntas.length - 1) {
     preguntaActual++;
     mostrarPregunta();
     window.scrollTo(0, 0);
@@ -160,14 +210,15 @@ function preguntaAnterior() {
 
 // ---- RESULTADO ----
 function mostrarResultado() {
+  const test = TESTS[testSeleccionado];
   const puntuacion = respuestas.reduce((suma, r) => suma + (r !== null ? r : 0), 0);
-  const maxPuntuacion = PHQ9.preguntas.length * 3; // 27
+  const maxPuntuacion = test.preguntas.length * 3;
 
-  // Encontrar nivel
-  const nivel = PHQ9.resultados.find(r => puntuacion >= r.min && puntuacion <= r.max);
+  // Buscar nivel; si la puntuacion supera todos los rangos, usar el ultimo
+  const niveles = test.resultados;
+  let nivel = niveles.find(r => puntuacion >= r.min && puntuacion <= r.max);
+  if (!nivel) nivel = niveles[niveles.length - 1];
 
-  // Indicadores de nivel (4 puntos: sin, leve, moderada, severa)
-  const niveles = PHQ9.resultados;
   const indiceLevelActual = niveles.indexOf(nivel);
   const contenedorPuntos = document.getElementById("nivel-puntos");
   contenedorPuntos.innerHTML = "";
@@ -177,6 +228,10 @@ function mostrarResultado() {
     punto.setAttribute("aria-hidden", "true");
     contenedorPuntos.appendChild(punto);
   });
+
+  // Mostrar nombre del test en la pantalla de resultado
+  const tituloResultado = document.getElementById("titulo-resultado-test");
+  if (tituloResultado) tituloResultado.textContent = test.nombre;
 
   document.getElementById("resultado-nivel").textContent = nivel.nivel;
   document.getElementById("resultado-puntuacion").textContent =
@@ -191,7 +246,6 @@ function reiniciar() {
   testSeleccionado = null;
   preguntaActual = 0;
   respuestas = [];
-  // Limpiar seleccion de test
   document.querySelectorAll(".btn-opcion-test").forEach(btn => {
     btn.classList.remove("seleccionado");
     btn.setAttribute("aria-pressed", "false");
@@ -215,7 +269,6 @@ function cerrarAyuda() {
   overlay.classList.remove("activa");
 }
 
-// Cerrar ayuda con tecla Escape
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") {
     cerrarAyuda();
